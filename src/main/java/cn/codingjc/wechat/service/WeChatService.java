@@ -14,10 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author shenjicheng
@@ -84,7 +81,7 @@ public class WeChatService {
     private BaseMessage dealTextMessage(Map<String, String> resultMap) {
         String content = resultMap.get("Content");
         String resp = "播主还在改代码😂";
-        if (content.contains("天气")) {
+        if (content.contains("天气") || content.contains("萧山") || content.contains("杭州")) {
             resp = queryWeather(content);
         }
         TextMessage textMessage = new TextMessage(resultMap, resp);
@@ -135,9 +132,38 @@ public class WeChatService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dayStr = "";
         int day = date.getDay();
+        WeatherBean.Forecast today = weatherBean.getData().getForecast().get(0);
+        result.append("今天是" + sdf.format(date) + ", 星期" + getDaystr(day) + "\n");
+        result.append(weatherBean.getCityInfo().getCity() + "今日天气：" + today.getType() + "\n");
+        result.append("☁️【️最低温度】:" + today.getLow() + "\n");
+        result.append("🌡【最高温度】:" + today.getHigh() + "\n");
+        result.append("🌄【日出时间】:" + today.getSunrise() + "\n");
+        result.append("🌞【日落时间】:" + today.getSunset() + "\n");
+        result.append("\n");
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        Date tomorrow = c.getTime();//这是明天
+
+        WeatherBean.Forecast nextDay = weatherBean.getData().getForecast().get(1);
+        result.append("明日是" + sdf.format(tomorrow) + ", 星期" + getDaystr(tomorrow.getDay()) + "\n");
+        result.append(weatherBean.getCityInfo().getCity() + "明日天气：" + nextDay.getType() + "\n");
+        result.append("☁️【️最低温度】:" + nextDay.getLow() + "\n");
+        result.append("🌡【最高温度】:" + nextDay.getHigh() + "\n");
+        result.append("🌄【日出时间】:" + nextDay.getSunrise() + "\n");
+        result.append("🌞【日落时间】:" + nextDay.getSunset() + "\n");
+        result.append("\n");
+        result.append(nextDay.getNotice() + "😄");
+        return result.toString();
+    }
+
+
+    public String getDaystr(int day){
+        String dayStr = "";
         switch (day){
             case 0: dayStr = "日";
-            break;
+                break;
             case 1: dayStr = "一";
                 break;
             case 2: dayStr = "二";
@@ -151,14 +177,6 @@ public class WeChatService {
             case 6: dayStr = "六";
                 break;
         }
-        WeatherBean.Forecast nextDay = weatherBean.getData().getForecast().get(1);
-        result.append("今天是" + sdf.format(date) + ", 星期" + dayStr + "\n");
-        result.append(weatherBean.getCityInfo().getCity() + "明日天气：" + nextDay.getType() + "\n");
-        result.append("最低温度：" + nextDay.getLow() + "\n");
-        result.append("最高温度：" + nextDay.getHigh() + "\n");
-        result.append("日出时间：" + nextDay.getSunrise() + "\n");
-        result.append("日落时间：" + nextDay.getSunset() + "\n");
-        result.append(nextDay.getNotice() + "😄");
-        return result.toString();
+        return dayStr;
     }
 }
