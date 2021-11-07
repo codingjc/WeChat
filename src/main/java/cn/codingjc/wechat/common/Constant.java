@@ -6,6 +6,8 @@ package cn.codingjc.wechat.common;
  */
 public class Constant {
 
+    public static final String WEATHER = "天气";
+
     // 城市ID
     public static final String JIAXING = "101210301";
     public static final String XIAOSHAN = "101210102";
