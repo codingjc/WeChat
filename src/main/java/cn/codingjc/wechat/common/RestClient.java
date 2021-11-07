@@ -17,9 +17,9 @@ public class RestClient {
 
     private static String TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
 
-    private static final String APP_ID = "wx351c114a9f82feab";
+    private static final String APP_ID = "123";
 
-    private static final String APP_SECURITY = "ba9d42dd874d1679e56ed50cd79ee6de";
+    private static final String APP_SECURITY = "123";
 
     private static AccessToken token;
 
