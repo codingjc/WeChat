@@ -110,14 +110,12 @@ public class WeChatService {
 
         result.append("😄你好，摸鱼人！工作再累，一定不要忘记摸鱼哦！");
         result.append("\n");
-        result.append("有事没事起身去茶水间去走廊走走，别老在工位上坐着，钱事老板的，但命事自己的！");
-        result.append("\n");
         result.append("\n");
         result.append("今天是" + localDate.getYear() + "年" + localDate.getMonthValue() + "月" + localDate.getDayOfMonth() + "日,");
         result.append("\n");
         int value = localDate.getDayOfWeek().getValue();
         if (6 - value >= 0) {
-            result.append("距离本周周末还有" + (6 - value - 1) + "天！");
+            result.append("距离本周周末还有" + (6 - value) + "天！");
             result.append("\n");
         } else {
             result.append("快来拥抱美好的周末吧！");

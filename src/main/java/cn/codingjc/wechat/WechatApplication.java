@@ -1,6 +1,7 @@
 package cn.codingjc.wechat;
 
 import cn.codingjc.wechat.model.WeatherBean;
+import com.alibaba.fastjson.JSON;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,7 @@ public class WechatApplication {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://t.weather.itboy.net/api/weather/city/101210101";
         ResponseEntity<WeatherBean> responseEntity = restTemplate.getForEntity(url, WeatherBean.class);
-        System.out.println(responseEntity.getBody());
+        System.out.println(JSON.toJSONString(responseEntity.getBody()));
     }
 
     @Bean
