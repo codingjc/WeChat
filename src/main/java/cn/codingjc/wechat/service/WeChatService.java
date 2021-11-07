@@ -33,6 +33,8 @@ public class WeChatService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WeChatService.class);
 
+    private static String weatherUrl = "http://t.weather.itboy.net/api/weather/city/";
+
     @Autowired
     RestTemplate restTemplate;
 
@@ -119,7 +121,7 @@ public class WeChatService {
         result.append("今天是" + localDate.getYear() + "年" + localDate.getMonthValue() + "月" + localDate.getDayOfMonth() + "日,");
         result.append("\n");
         int value = localDate.getDayOfWeek().getValue();
-        if (6 - value >= 0) {
+        if (6 - value > 0) {
             result.append("距离本周周末还有" + (6 - value) + "天！");
             result.append("\n");
         } else {
@@ -168,19 +170,6 @@ public class WeChatService {
 
         StringBuilder result = new StringBuilder();
         String cityId = "";
-        /*switch (key){
-            case "hangzhou":
-                cityId = Constant.HANGZHOU;
-                break;
-            case "jiaxing":
-                cityId = Constant.JIAXING;
-                break;
-            case "xiaoshan":
-                cityId = Constant.XIAOSHAN;
-                break;
-            default:
-                break;
-        }*/
         if (Constant.WEATHER.equals(key)) {
             cityId = Constant.HANGZHOU;
         }
@@ -189,14 +178,30 @@ public class WeChatService {
             if (!Constant.WEATHER.equals(key) ) {
                 cityId = CityDataListener.date.get(splitKey[0]);
             }
-            String url = "http://t.weather.itboy.net/api/weather/city/" + cityId;
+            String url = weatherUrl + cityId;
             ResponseEntity<WeatherBean> responseEntity = restTemplate.getForEntity(url, WeatherBean.class);
             System.out.println(responseEntity.getBody());
             WeatherBean weatherBean = responseEntity.getBody();
+            handlerDayWeather(result, 0, weatherBean);
+            handlerDayWeather(result, 1, weatherBean);
+            handlerDayWeather(result, 2, weatherBean);
+            handlerDayWeather(result, 3, weatherBean);
+            handlerDayWeather(result, 4, weatherBean);
+            handlerDayWeather(result, 5, weatherBean);
+            handlerDayWeather(result, 6, weatherBean);
+            return result.toString();
+        } else {
+            result.append("小番正在努力寻找该城市的天气( ╯□╰ )");
+            result.append("\n");
+            return result.toString();
+        }
+    }
 
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String dayStr = "";
+    public void handlerDayWeather(StringBuilder result, int index, WeatherBean weatherBean){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        if (index == 0) {
             int day = date.getDay();
             WeatherBean.Forecast today = weatherBean.getData().getForecast().get(0);
             result.append("今天是" + sdf.format(date) + ", 星期" + getDaystr(day) + "\n");
@@ -206,8 +211,7 @@ public class WeChatService {
             result.append("🌄【日出时间】:" + today.getSunrise() + "\n");
             result.append("🌞【日落时间】:" + today.getSunset() + "\n");
             result.append("\n");
-
-            Calendar c = Calendar.getInstance();
+        } else if (index == 1) {
             c.setTime(date);
             c.add(Calendar.DAY_OF_MONTH, 1);
             Date tomorrow = c.getTime();//这是明天
@@ -219,16 +223,14 @@ public class WeChatService {
             result.append("🌡【最高温度】:" + nextDay.getHigh() + "\n");
             result.append("🌄【日出时间】:" + nextDay.getSunrise() + "\n");
             result.append("🌞【日落时间】:" + nextDay.getSunset() + "\n");
-//            result.append("\n");
             result.append(nextDay.getNotice() + "😄");
             result.append("\n");
             result.append("\n");
-
+        } else {
             c.setTime(date);
-            c.add(Calendar.DAY_OF_MONTH, 2);
+            c.add(Calendar.DAY_OF_MONTH, index);
             Date secord = c.getTime();//这是第二天
-            WeatherBean.Forecast secordDay = weatherBean.getData().getForecast().get(2);
-//            result.append("明日是" + sdf.format(tomorrow) + ", 星期" + getDaystr(tomorrow.getDay()) + "\n");
+            WeatherBean.Forecast secordDay = weatherBean.getData().getForecast().get(index);
             result.append("星期" + getDaystr(secord.getDay()) + weatherBean.getCityInfo().getCity() + "" + "天气：" + secordDay.getType() + "\n");
             result.append("☁️【️最低温度】:" + secordDay.getLow() + "\n");
             result.append("🌡【最高温度】:" + secordDay.getHigh() + "\n");
@@ -237,67 +239,6 @@ public class WeChatService {
             result.append(secordDay.getNotice() + "😄");
             result.append("\n");
             result.append("\n");
-
-            c.setTime(date);
-            c.add(Calendar.DAY_OF_MONTH, 3);
-            Date third = c.getTime();//这是第三天
-            WeatherBean.Forecast thirdDay = weatherBean.getData().getForecast().get(3);
-//            result.append("明日是" + sdf.format(tomorrow) + ", 星期" + getDaystr(tomorrow.getDay()) + "\n");
-            result.append("星期" + getDaystr(third.getDay()) + weatherBean.getCityInfo().getCity() + "" + "天气：" + thirdDay.getType() + "\n");
-            result.append("☁️【️最低温度】:" + thirdDay.getLow() + "\n");
-            result.append("🌡【最高温度】:" + thirdDay.getHigh() + "\n");
-            result.append("🌄【日出时间】:" + thirdDay.getSunrise() + "\n");
-            result.append("🌞【日落时间】:" + thirdDay.getSunset() + "\n");
-            result.append(thirdDay.getNotice() + "😄");
-            result.append("\n");
-            result.append("\n");
-
-            c.setTime(date);
-            c.add(Calendar.DAY_OF_MONTH, 4);
-            Date fourth = c.getTime();//这是第四天
-            WeatherBean.Forecast fourthDay = weatherBean.getData().getForecast().get(3);
-//            result.append("明日是" + sdf.format(tomorrow) + ", 星期" + getDaystr(tomorrow.getDay()) + "\n");
-            result.append("星期" + getDaystr(fourth.getDay()) + weatherBean.getCityInfo().getCity() + "" + "天气：" + fourthDay.getType() + "\n");
-            result.append("☁️【️最低温度】:" + fourthDay.getLow() + "\n");
-            result.append("🌡【最高温度】:" + fourthDay.getHigh() + "\n");
-            result.append("🌄【日出时间】:" + fourthDay.getSunrise() + "\n");
-            result.append("🌞【日落时间】:" + fourthDay.getSunset() + "\n");
-            result.append(fourthDay.getNotice() + "😄");
-            result.append("\n");
-            result.append("\n");
-
-            c.setTime(date);
-            c.add(Calendar.DAY_OF_MONTH, 5);
-            Date five = c.getTime();//这是第无天
-            WeatherBean.Forecast fiveDay = weatherBean.getData().getForecast().get(3);
-//            result.append("明日是" + sdf.format(tomorrow) + ", 星期" + getDaystr(tomorrow.getDay()) + "\n");
-            result.append("星期" + getDaystr(five.getDay()) + weatherBean.getCityInfo().getCity() + "" + "天气：" + fiveDay.getType() + "\n");
-            result.append("☁️【️最低温度】:" + fiveDay.getLow() + "\n");
-            result.append("🌡【最高温度】:" + fiveDay.getHigh() + "\n");
-            result.append("🌄【日出时间】:" + fiveDay.getSunrise() + "\n");
-            result.append("🌞【日落时间】:" + fiveDay.getSunset() + "\n");
-            result.append(fiveDay.getNotice() + "😄");
-            result.append("\n");
-            result.append("\n");
-
-            c.setTime(date);
-            c.add(Calendar.DAY_OF_MONTH, 6);
-            Date six = c.getTime();//这是第无天
-            WeatherBean.Forecast sixDay = weatherBean.getData().getForecast().get(3);
-//            result.append("明日是" + sdf.format(tomorrow) + ", 星期" + getDaystr(tomorrow.getDay()) + "\n");
-            result.append("星期" + getDaystr(six.getDay()) + weatherBean.getCityInfo().getCity() + "" + "天气：" + sixDay.getType() + "\n");
-            result.append("☁️【️最低温度】:" + sixDay.getLow() + "\n");
-            result.append("🌡【最高温度】:" + sixDay.getHigh() + "\n");
-            result.append("🌄【日出时间】:" + sixDay.getSunrise() + "\n");
-            result.append("🌞【日落时间】:" + sixDay.getSunset() + "\n");
-            result.append(sixDay.getNotice() + "😄");
-            result.append("\n");
-
-            return result.toString();
-        } else {
-            result.append("小番正在努力寻找该城市的天气( ╯□╰ )");
-            result.append("\n");
-            return result.toString();
         }
     }
 
